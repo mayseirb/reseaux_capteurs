@@ -1,66 +1,33 @@
-/* mbed Microcontroller Library
- * Copyright (c) 2019 ARM Limited
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include "mbed.h"
+#include "hpma115/hpma115.h"
+
+using namespace sixtron;
+
+// On trouve ca dans PinNames.h
+HPMA115 sensor(PA_9, PA_10);
+
+int main() {
+    printf("Initialisation du capteur HPMA115C0\n");
 
 
-// using namespace std::chrono;
-
-
-int freq = 1;
-/////////////////////////////////////////////////
-// Blinking rate in milliseconds
-#define BLINKING_RATE     250ms
-
-    // Initialise the digital pin LED1 as an output
-#ifdef LED1
-    DigitalOut led(LED1);
-#else
-    bool led;
-#endif
-
-    // Initialise the digital pin LED1 as an output
-#ifdef BUTTON1
-    InterruptIn button(BUTTON1);
-#else
-    bool button;
-#endif
-////////////////////////////////////////////////////*/
-
-Ticker flipper;
-
-
-void flip()
-{
-   led = !led;
-}
-
-void inter()
-{
-
-freq = freq + 1 ; 
-if(freq > 6 )
- {freq = 1;}
-
-}
-
-void inter2()
-{
-
-flipper.attach(&flip, freq); // the address of the function to be attached (flip) and the interval (2 seconds)
-}
-
-
-int main()
-{
-    button.rise(&inter);
-    button.fall(&inter2);
-    flipper.attach(&flip, freq); // the address of the function to be attached (flip) and the interval (2 seconds)
-    
     while (true) {
-    printf("freq =  %d\n", freq);
-    
+        hpma115_data_t data;
+
+        
+        HPMA115::ErrorType err = sensor.read_measurement(&data);
+        if (err == HPMA115::ErrorType::Ok) {
+            printf("PM2.5: %d micro g/m³, PM10: %d micro g/m³\n", data.pm2_5, data.pm10);
+
+        
+            if (data.pm1_pm4_valid) {
+                printf("PM1.0: %d micro g/m³, PM4.0: %d micro g/m³\n", data.pm1_0, data.pm4_0);
+            }
+        }
+
+        
+        ThisThread::sleep_for(2s);
     }
+
+    sensor.stop_measurement();
+    return 0;
 }
