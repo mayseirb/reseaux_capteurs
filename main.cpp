@@ -7,7 +7,7 @@
 
 
 // Blinking rate in milliseconds
-#define BLINKING_RATE     500ms
+#define BLINKING_RATE     50ms
 
 
 int main()
@@ -19,8 +19,16 @@ int main()
     bool led;
 #endif
 
+    // Initialise the digital pin LED1 as an output
+#ifdef BUTTON1
+    DigitalIn button(BUTTON1);
+#else
+    bool button;
+#endif
+
     while (true) {
-        led = !led;
+        printf("etat du bouton est : %d \n", int(button));
+        led = button;
         ThisThread::sleep_for(BLINKING_RATE);
     }
 }
