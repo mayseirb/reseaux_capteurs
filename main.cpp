@@ -6,10 +6,10 @@
 #include "mbed.h"
 
 
-using namespace std::chrono;
+// using namespace std::chrono;
 
 
-
+int freq = 1;
 /////////////////////////////////////////////////
 // Blinking rate in milliseconds
 #define BLINKING_RATE     250ms
@@ -27,34 +27,40 @@ using namespace std::chrono;
 #else
     bool button;
 #endif
-////////////////////////////////////////////////////
+////////////////////////////////////////////////////*/
 
-Timer t;
-int delta = 0;
+Ticker flipper;
 
 
-void flip1()
+void flip()
 {
-   t.reset();
-   t.start();
    led = !led;
 }
 
-void flip2()
+void inter()
 {
-   t.stop();
-   led = !led;
-   delta = duration_cast<milliseconds>(t.elapsed_time()).count();
-  // printf("Durée de l'appui : %d \n", delta);
+
+freq = freq + 1 ; 
+if(freq > 6 )
+ {freq = 1;}
+
 }
+
+void inter2()
+{
+
+flipper.attach(&flip, freq); // the address of the function to be attached (flip) and the interval (2 seconds)
+}
+
 
 int main()
 {
-    button.rise(&flip1);  // attach the address of the flip function to the rising edge
-    button.fall(&flip2);  // attach the address of the flip function to the rising edge
-
-    while (true) {
+    button.rise(&inter);
+    button.fall(&inter2);
+    flipper.attach(&flip, freq); // the address of the function to be attached (flip) and the interval (2 seconds)
     
-    printf("Durée de l'appui : %d \n", delta);
+    while (true) {
+    printf("freq =  %d\n", freq);
+    
     }
 }
