@@ -6,6 +6,11 @@
 #include "mbed.h"
 
 
+using namespace std::chrono;
+
+
+
+/////////////////////////////////////////////////
 // Blinking rate in milliseconds
 #define BLINKING_RATE     250ms
 
@@ -22,19 +27,34 @@
 #else
     bool button;
 #endif
+////////////////////////////////////////////////////
 
-void flip()
+Timer t;
+int delta = 0;
+
+
+void flip1()
 {
-   //printf("etat du bouton est : %d \n", int(button));
+   t.reset();
+   t.start();
    led = !led;
+}
+
+void flip2()
+{
+   t.stop();
+   led = !led;
+   delta = duration_cast<milliseconds>(t.elapsed_time()).count();
+  // printf("Durée de l'appui : %d \n", delta);
 }
 
 int main()
 {
-    button.rise(&flip);  // attach the address of the flip function to the rising edge
-    button.fall(&flip);  // attach the address of the flip function to the rising edge
+    button.rise(&flip1);  // attach the address of the flip function to the rising edge
+    button.fall(&flip2);  // attach the address of the flip function to the rising edge
 
     while (true) {
-        
+    
+    printf("Durée de l'appui : %d \n", delta);
     }
 }
